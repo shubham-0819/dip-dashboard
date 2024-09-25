@@ -4,6 +4,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import { GeistSans } from "geist/font/sans";
 import { ThemeProvider } from "next-themes";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import Link from "next/link";
 import "./globals.css";
 
@@ -24,28 +25,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={GeistSans.className} suppressHydrationWarning>
-      <body className="bg-background text-foreground">
+      <body className="bg-background text-foreground w-full max-h-full overflow-hidden">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <main className="min-h-screen flex flex-col items-center">
-            <div className="flex-1 w-full flex flex-col gap-20 items-center">
-              <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-                <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-                  <div className="flex gap-5 items-center font-semibold">
-                    <Link href={"/"}>Dentist India Plus Admin Dashboard</Link>
-                    <ThemeSwitcher />
-                  </div>
-                  {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
-                </div>
-              </nav>
-              <div className="flex flex-col gap-20 max-w-5xl p-5">
+          <main className="main min-h-screen items-center flex flex-col w-full h-full overflow-hidden">
+            <TooltipProvider>
+              <div className="flex w-full flex-1 items-center justify-center">
                 {children}
               </div>
-            </div>
+            </TooltipProvider>
           </main>
         </ThemeProvider>
       </body>

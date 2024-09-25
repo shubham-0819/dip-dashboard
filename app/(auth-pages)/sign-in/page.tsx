@@ -15,6 +15,9 @@ import Link from "next/link";
 
 export default function Login({ searchParams }: { searchParams: Message }) {
   return (
+    <div className="flex w-full h-full items-center justify-center">
+
+    
     <Card className="w-full max-w-sm">
       <form>
         <CardHeader>
@@ -46,5 +49,6 @@ export default function Login({ searchParams }: { searchParams: Message }) {
         </CardFooter>
       </form>
     </Card>
+    </div>
   );
 }
