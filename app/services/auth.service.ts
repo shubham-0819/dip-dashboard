@@ -1,28 +1,45 @@
-// this module is used to authenticate the user, it will make several REST API calls to the server to authenticate the user.
-
 import { config } from "./config";
 
 const baseUrl = config.api;
 
-function login(username: string, password: string): Promise<any> {
-  return new Promise((resolve, reject) => {
-    fetch(`http:/localhost:9091/api/admin/login`, {
+interface LoginData {
+  userName: string;
+  password: string;
+}
+
+interface ChangePasswordData {
+  userName: string;
+  password: string;
+  newPassword: string;
+}
+
+const AuthService = {
+  login: (data: LoginData): Promise<any> => {
+    return fetch(`${baseUrl}/api/doctor/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }),
-    })
-      .then((response) => {
-        if (response.status !== 200) {
-          reject(false);
-        }
-        resolve(response.json());
-      })
-      .catch(() => {
-        reject(false);
-      });
-  });
-}
+      body: JSON.stringify(data),
+    }).then((response) => {
+      if (!response.ok) throw new Error("Login failed");
+      return response.json();
+    });
+  },
 
-export { login };
+  changePassword: (data: ChangePasswordData): Promise<any> => {
+    return fetch(`${baseUrl}/api/doctor/auth/change-password`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(data),
+    }).then((response) => {
+      if (!response.ok) throw new Error("Failed to change password");
+      return response.json();
+    });
+  },
+};
+
+export { AuthService };

@@ -4,46 +4,53 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { login } from "./services/auth.service";
+import { AdminService } from "./services/admin.service";
+
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
-  const supabase = createClient();
-  const origin = headers().get("origin");
+  const mobile = formData.get("mobile")?.toString();
+  const firstName = formData.get("firstName")?.toString();
+  const lastName = formData.get("lastName")?.toString();
 
-  if (!email || !password) {
-    return { error: "Email and password are required" };
+  console.log(email, password, mobile, firstName, lastName);
+  
+  if (!email || !password || !mobile || !firstName || !lastName) {
+    return { error: "Required firld missing" };
+  }
+  let redirectTo = ''
+  try {
+    const adminData = {
+      email,
+      password,
+      mobile,
+      firstName,
+      lastName
+    }
+    console.log(adminData);
+    const response = await AdminService.createAdmin(adminData);
+    if (response) {
+      console.log("response", response);
+      redirectTo = '/sign-in'
+    }
+  } catch (error) {
+    console.log(error);
+    redirectTo = '/sign-up'
+    
+  } finally {
+    return encodedRedirect("success", redirectTo, "");
   }
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback`,
-    },
-  });
-
-  if (error) {
-    console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/sign-up", error.message);
-  } else {
-    return encodedRedirect(
-      "success",
-      "/sign-up",
-      "Thanks for signing up! Please check your email for a verification link."
-    );
-  }
 };
 
 export const signInAction = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const supabase = createClient();
   
   let redirectTo = '/'
   try {
-    const response = await login(email, password);
+    const response = await AdminService.login({email, password});
     if (response) {
       console.log("response", response);
       redirectTo = '/dashboard'
